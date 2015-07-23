@@ -66,13 +66,10 @@ def dump_mathjax_here(staticDir):
     shutil.make_archive(zip_path, 'zip', mathjax_dir)
     shutil.rmtree(mathjax_dir)
     os.unlink(tmp_zip)
-
-if __name__ == "__main__":
-    args = sys.argv
-    if len(args) != 2:
-        print "Usage: refactor_ipython.py <ipython egg>"
-        exit(1)
-    egg = args[1]
+    
+    
+    
+def do_refactor(egg):
     if not os.path.exists(egg):
         print "Error: egg '{0}' does not exist.".format(egg)
         exit(1)
@@ -95,3 +92,13 @@ if __name__ == "__main__":
         shutil.rmtree(tmp)
 
     print "Re-wrote egg '{0}', original saved as '{1}'.".format(egg, egg+".tmp")
+    
+    
+    
+if __name__ == "__main__":
+    args = sys.argv
+    if len(args) != 2:
+        print "Usage: refactor_ipython.py <ipython egg>"
+        exit(1)
+    egg = args[1]
+    do_refactor(egg)

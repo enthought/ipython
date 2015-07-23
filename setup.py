@@ -339,6 +339,12 @@ setup_args.update(setuptools_extra_args)
 def main():
     setup(**setup_args)
     cleanup()
-
+    if 'bdist_egg' in sys.argv:
+        import refactor_ipython
+        egg = '{name}-{version}-py{pyver}.egg'.format(
+            pyver=sys.version[:3], **setup_args)
+        refactor_ipython.do_refactor(os.path.join('dist', egg))
+        
+        
 if __name__ == '__main__':
     main()
