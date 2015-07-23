@@ -10,10 +10,10 @@ import os
 import shutil
 import tempfile
 import zipfile
-import endist.ziputils
-from os.path import join, splitext
+from os.path import join, splitext, normpath
 import urllib2
 import glob
+import zipfile
 
 # Phase 1: rename the long image file names.
 def reduce_jquery_theme_image_path_length(staticDir):
@@ -68,6 +68,37 @@ def dump_mathjax_here(staticDir):
     os.unlink(tmp_zip)
     
     
+# This is no longer in the released endist?
+def zip_r(zip_file, dir_path, compress=True, exclude_svn=True):
+    """
+    Create zip_file which contains the content of the directory dir_path.
+    Empty directories are archived by default, i.e. an empty directory will
+    be archived as an empty file with the path of the empty directory ending
+    with '/'.  Note that only empty directories are archived.  In other words,
+    if `archive_empty_dirs` is set to False, or they the directory tree being
+    archived contains no empty directories, directory path are not archived
+    at all.
+    Links are ignored.
+    """
+    dir_path = normpath(dir_path)
+
+    print 'Creating zip-file %r of dir %r' % (zip_file, dir_path)
+
+    z = zipfile.ZipFile(
+             zip_file, 'w',
+             [zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED][int(bool(compress))])
+
+    ld = len(dir_path)
+    for root, dirs, files in os.walk(dir_path):
+        if exclude_svn and '.svn' in root.split(os.sep):
+            continue
+        for f in files:
+            absname = join(root, f)
+            arcname = absname[ld:].replace(os.sep, '/')
+            z.write(absname, arcname)
+
+    z.close()
+
     
 def do_refactor(egg):
     if not os.path.exists(egg):
@@ -87,7 +118,7 @@ def do_refactor(egg):
 
         # Re-zip the egg.
         shutil.move(egg, egg+".tmp")
-        endist.ziputils.zip_r(egg, tmp)
+        zip_r(egg, tmp)
     finally:
         shutil.rmtree(tmp)
 
