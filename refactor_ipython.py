@@ -11,7 +11,7 @@ import shutil
 import tempfile
 import zipfile
 from os.path import join, splitext, normpath
-import urllib2
+import requests
 import glob
 import zipfile
 
@@ -50,13 +50,9 @@ def dump_mathjax_here(staticDir):
     print 'Downloading and saving %s' % url
     with open(tmp_zip, 'wb') as f:
         SIZE = 1024 * 8
-        w = urllib2.urlopen(url)
-        while True:
-            data = w.read(SIZE)
-            if len(data) > 0:
-                f.write(data)
-            else:
-                break
+        resp = requests.get(url)
+        resp.raise_for_status()
+        f.write(resp.content)
 
     print 'Extracting the downloaded zip'
     with zipfile.ZipFile(tmp_zip) as z:
